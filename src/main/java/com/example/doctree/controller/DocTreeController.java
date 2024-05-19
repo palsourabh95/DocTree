@@ -1,6 +1,7 @@
 package com.example.doctree.controller;
 
 import com.example.doctree.service.DocTreeService;
+import com.example.doctree.service.LocalWorkBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +18,18 @@ public class DocTreeController {
 
     @Autowired
     DocTreeService docTreeService;
+
+    @Autowired
+    LocalWorkBookService localWorkBookService;
     String TEXT = "text";
+    String CHANNEL_ID = "channel_id";
+
+    /**
+     * /doctree postLink <tag> <link>
+     * /doctree getTags
+     * /doctree getLinks <tag>
+     * /doctree help
+     */
 
     @PostMapping("slack/events")
     public ResponseEntity<String> postName(@RequestBody String requestBody){
@@ -36,11 +46,9 @@ public class DocTreeController {
                             }
                         }
                 ));
-        String[] textSplit = bodyMap.get(TEXT).split(" ");
-        String validateArgs =  docTreeService.validateArguments(textSplit);
-        if(validateArgs != null){
-            return ResponseEntity.ok(validateArgs);
-        }
-        return ResponseEntity.ok("Done");
+        System.out.println(bodyMap.get("channel_id"));
+        return ResponseEntity.ok(localWorkBookService.mapperFunction(
+                bodyMap.get(CHANNEL_ID),
+                bodyMap.get(TEXT)));
     }
 }
